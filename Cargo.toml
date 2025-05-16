@@ -1,0 +1,31 @@
+[package]
+name = "esp32-can-sensor-rs"
+version = "0.1.0"
+authors = ["franckinux <fbarbenoire@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+aht20-driver = { version = "2.0.0", default-features = false }
+critical-section = "1.2.0"
+nb = "1.1.0"
+panic-halt = "0.2.0"
+embedded-hal = { version = "0.2.7", features = ["unproven"] }
+# esp-hal = { version = "0.23.1", features = ["esp32c3"] }
+esp-hal = { version = "1.0.0-beta.0", features = ["esp32c3", "unstable"] }
+esp-backtrace = { version = "0.15.1", features = ["esp32c3", "panic-handler", "println", "exception-handler"] }
+esp-println = { version = "0.13.1", features = ["esp32c3"] }
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
+debug-assertions = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false
