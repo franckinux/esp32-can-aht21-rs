@@ -17,6 +17,11 @@ esp-hal = { version = "1.0.0-beta.0", features = ["esp32c3", "unstable"] }
 esp-backtrace = { version = "0.15.1", features = ["esp32c3", "panic-handler", "println", "exception-handler"] }
 esp-println = { version = "0.13.1", features = ["esp32c3"] }
 
+[features]
+default = ["aht20"]
+aht20 = []
+sht3x = []
+
 [profile.dev]
 # Rust debug is too slow.
 # For debug builds always builds with some optimization

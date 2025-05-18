@@ -21,8 +21,10 @@ use esp_hal::{
 };
 use esp_println::println;
 use nb::block;
+#[cfg(feature="aht20")]
 use aht20_driver;
-// use embedded_sht3x::{Repeatability::High, Sht3x, DEFAULT_I2C_ADDRESS};
+#[cfg(feature="sht3x")]
+use embedded_sht3x::{Repeatability::High, Sht3x, DEFAULT_I2C_ADDRESS};
 
 
 #[main]
@@ -44,12 +46,18 @@ fn main() -> ! {
     .with_scl(peripherals.GPIO1);
 
     // Configure the AHT20 temperature and humidity sensor.
-    let mut aht20_uninit = aht20_driver::AHT20::new(i2c, aht20_driver::SENSOR_ADDRESS);
-    let mut aht20 = aht20_uninit.init(&mut delay).unwrap();
+    #[cfg(feature="aht20")]
+    let mut aht20 = aht20_driver::AHT20::new(i2c, aht20_driver::SENSOR_ADDRESS);
+    #[cfg(feature="aht20")]
+    let mut sensor = aht20.init(&mut delay).unwrap();
 
-    // // Create the sensor and configure its repeatability
-    // let mut sensor = Sht3x::new(i2c, DEFAULT_I2C_ADDRESS, delay);
-    // sensor.repeatability = High;
+    #[cfg(feature="sht3x")]
+    // Create the sensor and configure its repeatability
+    let mut sensor = {
+        let mut sht3x = Sht3x::new(i2c, DEFAULT_I2C_ADDRESS, delay);
+        sht3x.repeatability = High;
+        sht3x
+    };
 
     // CAN
     let tx_pin = peripherals.GPIO2;
@@ -90,11 +98,13 @@ fn main() -> ! {
     let mut buffer = [0u8; 4];
 
     loop {
+        #[cfg(feature="aht20")]
         // Take the temperature and humidity measurement.
-        let measurement = aht20.measure(&mut delay).unwrap();
+        let measurement = sensor.measure(&mut delay).unwrap();
 
-        // // Perform a temperature and humidity measurement
-        // let measurement = sensor.single_measurement().unwrap();
+        #[cfg(feature="sht3x")]
+        // Perform a temperature and humidity measurement
+        let measurement = sensor.single_measurement().unwrap();
 
         let temperature = (measurement.temperature * 100.0) as i16;
         let humidity = (measurement.humidity * 100.0) as i16;
