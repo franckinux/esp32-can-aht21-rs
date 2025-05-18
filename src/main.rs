@@ -87,6 +87,8 @@ fn main() -> ! {
     // received.
     let mut twai = twai_config.start();
 
+    let mut buffer = [0u8; 4];
+
     loop {
         // Take the temperature and humidity measurement.
         let measurement = aht20.measure(&mut delay).unwrap();
@@ -94,12 +96,15 @@ fn main() -> ! {
         // // Perform a temperature and humidity measurement
         // let measurement = sensor.single_measurement().unwrap();
 
-        println!(
-            "Temperature: {:.2} °C, Relative humidity: {:.2} %",
-            measurement.temperature, measurement.humidity
-        );
+        let temperature = (measurement.temperature * 100.0) as i16;
+        let humidity = (measurement.humidity * 100.0) as i16;
 
-        let frame = EspTwaiFrame::new(StandardId::ZERO, &[1, 2, 3]).unwrap();
+        println!("Temperature: {} °C, Relative humidity: {} %", temperature, humidity);
+
+        buffer[0..2].clone_from_slice(&temperature.to_be_bytes());
+        buffer[2..4].clone_from_slice(&humidity.to_be_bytes());
+
+        let frame = EspTwaiFrame::new(StandardId::new(0x123u16).unwrap(), &buffer).unwrap();
         // Transmit a new frame
         block!(twai.transmit(&frame)).unwrap();
         println!("Sent a frame");
