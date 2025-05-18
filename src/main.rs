@@ -14,6 +14,7 @@ use esp_backtrace as _;
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
+    gpio::{Level, Output, OutputConfig},
     i2c::master::{Config, I2c},
     main,
     twai::{self, EspTwaiFrame, StandardId, TwaiMode, filter::SingleStandardFilter},
@@ -21,6 +22,7 @@ use esp_hal::{
 use esp_println::println;
 use nb::block;
 use aht20_driver;
+// use embedded_sht3x::{Repeatability::High, Sht3x, DEFAULT_I2C_ADDRESS};
 
 
 #[main]
@@ -30,22 +32,28 @@ fn main() -> ! {
 
     let mut delay = Delay::new();
 
+    let mut led = Output::new(peripherals.GPIO8, Level::High, OutputConfig::default());
+
     // Create a new peripheral object with the described wiring and standard I2C clock speed.
     let i2c = I2c::new(
         peripherals.I2C0,
         Config::default(),
     )
     .unwrap()
-    .with_sda(peripherals.GPIO1)
-    .with_scl(peripherals.GPIO2);
+    .with_sda(peripherals.GPIO0)
+    .with_scl(peripherals.GPIO1);
 
     // Configure the AHT20 temperature and humidity sensor.
     let mut aht20_uninit = aht20_driver::AHT20::new(i2c, aht20_driver::SENSOR_ADDRESS);
     let mut aht20 = aht20_uninit.init(&mut delay).unwrap();
 
+    // // Create the sensor and configure its repeatability
+    // let mut sensor = Sht3x::new(i2c, DEFAULT_I2C_ADDRESS, delay);
+    // sensor.repeatability = High;
+
     // CAN
-    let tx_pin = peripherals.GPIO8;
-    let rx_pin = peripherals.GPIO9;
+    let tx_pin = peripherals.GPIO2;
+    let rx_pin = peripherals.GPIO3;
 
     // The speed of the bus.
     const TWAI_BAUDRATE: twai::BaudRate = twai::BaudRate::B125K;
@@ -81,15 +89,23 @@ fn main() -> ! {
 
     loop {
         // Take the temperature and humidity measurement.
-        let aht20_measurement = aht20.measure(&mut delay).unwrap();
-        let _humidity = aht20_measurement.humidity;
-        let _temperature = aht20_measurement.temperature;
+        let measurement = aht20.measure(&mut delay).unwrap();
+
+        // // Perform a temperature and humidity measurement
+        // let measurement = sensor.single_measurement().unwrap();
+
+        println!(
+            "Temperature: {:.2} °C, Relative humidity: {:.2} %",
+            measurement.temperature, measurement.humidity
+        );
 
         let frame = EspTwaiFrame::new(StandardId::ZERO, &[1, 2, 3]).unwrap();
         // Transmit a new frame
         block!(twai.transmit(&frame)).unwrap();
         println!("Sent a frame");
 
-        delay.delay_millis(250);
+        led.toggle();
+
+        delay.delay_millis(500);
     }
 }
