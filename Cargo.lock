@@ -477,7 +477,6 @@ version = "0.1.0"
 dependencies = [
  "aht20-driver",
  "critical-section",
- "embedded-hal 0.2.7",
  "embedded-sht3x",
  "esp-backtrace",
  "esp-hal",

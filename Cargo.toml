@@ -11,10 +11,10 @@ embedded-sht3x = "0.1.0"
 critical-section = "1.2.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
-embedded-hal = { version = "0.2.7", features = ["unproven"] }
-# esp-hal = { version = "0.23.1", features = ["esp32c3"] }
 esp-hal = { version = "1.0.0-beta.0", features = ["esp32c3", "unstable"] }
-esp-backtrace = { version = "0.15.1", features = ["esp32c3", "panic-handler", "println", "exception-handler"] }
+esp-backtrace = { version = "0.15.1", features = [
+"esp32c3", "panic-handler", "println", "exception-handler"
+] }
 esp-println = { version = "0.13.1", features = ["esp32c3"] }
 
 [features]
