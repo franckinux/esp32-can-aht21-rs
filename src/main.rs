@@ -114,7 +114,7 @@ fn main() -> ! {
         buffer[0..2].clone_from_slice(&temperature.to_be_bytes());
         buffer[2..4].clone_from_slice(&humidity.to_be_bytes());
 
-        let frame = EspTwaiFrame::new(StandardId::new(0x123u16).unwrap(), &buffer).unwrap();
+        let frame = EspTwaiFrame::new(StandardId::new(0x0101u16).unwrap(), &buffer).unwrap();
         // Transmit a new frame
         block!(twai.transmit(&frame)).unwrap();
         println!("Sent a frame");
