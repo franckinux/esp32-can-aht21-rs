@@ -1,12 +1,12 @@
 import can
 
 filters = [
-    {"can_id": 0x123, "can_mask": 0x7FF, "extended": False},
+    {"can_id": 0x0101, "can_mask": 0x7FF, "extended": False},
 ]
 
 with can.Bus(
-    interface="seeedstudio",
-    channel="/dev/ttyUSB0",
+    interface="socketcan",
+    channel="can0",
     bitrate=125000,
     can_filters=filters,
     receive_own_messages=False
