@@ -11,11 +11,11 @@ embedded-sht3x = "0.1.0"
 critical-section = "1.2.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
-esp-hal = { version = "1.0.0-beta.0", features = ["esp32c3", "unstable"] }
-esp-backtrace = { version = "0.15.1", features = [
-"esp32c3", "panic-handler", "println", "exception-handler"
+esp-hal = { version = "1.0.0", features = ["esp32c3", "unstable"] }
+esp-backtrace = { version = "0.18.1", features = [
+   "esp32c3", "panic-handler", "println"
 ] }
-esp-println = { version = "0.13.1", features = ["esp32c3"] }
+esp-println = { version = "0.16.1", features = ["esp32c3"] }
 
 [features]
 default = ["aht20"]
@@ -28,10 +28,10 @@ sht3x = []
 opt-level = "s"
 
 [profile.release]
-codegen-units    = 1     # LLVM can perform better optimizations using a single thread
-debug            = 2
+codegen-units = 1     # LLVM can perform better optimizations using a single thread
+debug = 2
 debug-assertions = false
-incremental      = false
-lto              = 'fat'
-opt-level        = 's'
-overflow-checks  = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
